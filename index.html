@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS API Provider Form</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .provider-selector {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .provider-btn {
+            flex: 1;
+            padding: 12px;
+            background-color: #e9e9e9;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .provider-btn:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .provider-btn:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .provider-btn.active {
+            background-color: #4a6fff;
+            color: white;
+        }
+        
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin-top: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        
+        .api-url {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        
+        .api-response {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        
+        .common-fields,
+        .provider-specific-fields {
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .example-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .loading::after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.2);
+            border-radius: 50%;
+            border-top-color: #4a6fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SMS API Provider Configuration</h1>
+        
+        <div class="provider-selector">
+            <button class="provider-btn active" data-provider="trustsignal">Trustsignal</button>
+            <button class="provider-btn" data-provider="msg91">MSG91</button>
+        </div>
+        
+        <!-- Trustsignal Form -->
+        <div id="trustsignal-form" class="form-container active">
+            <div class="common-fields">
+                <div class="section-title">Common Fields</div>
+                <div class="form-group">
+                    <label for="ts-api-key">API Key:</label>
+                    <input type="text" id="ts-api-key" placeholder="Enter your Trustsignal API key">
+                </div>
+                <div class="form-group">
+                    <label for="ts-message">Message Template:</label>
+                    <input type="text" id="ts-message" placeholder="Enter your full message with OTP">
+                    <div class="example-text">Example: Your verification code is 654321. Valid for 10 minutes.</div>
+                </div>
+            </div>
+            
+            <div class="provider-specific-fields">
+                <div class="section-title">Trustsignal Specific Fields</div>
+                <div class="form-group">
+                    <label for="ts-sender-id">Sender ID:</label>
+                    <input type="text" id="ts-sender-id" placeholder="Enter your sender ID">
+                </div>
+                <div class="form-group">
+                    <label for="ts-template-id">Template ID:</label>
+                    <input type="text" id="ts-template-id" placeholder="Enter your template ID">
+                </div>
+                <div class="form-group">
+                    <label for="ts-phone">Phone Number (Indian):</label>
+                    <input type="text" id="ts-phone" placeholder="Enter 10 digit phone number" maxlength="10" pattern="[0-9]{10}">
+                    <div class="example-text">Example: 9876543210 (10 digits only)</div>
+                    <div class="error-message" id="ts-phone-error">Please enter a valid 10-digit Indian phone number</div>
+                </div>
+            </div>
+            
+            <button type="submit" id="ts-submit">Send Request</button>
+            <div class="loading" id="ts-loading">Sending request...</div>
+            
+            <div class="result-container" id="ts-result-container" style="display:none;">
+                <div class="section-title">API Request</div>
+                <div class="api-url" id="ts-api-url"></div>
+                
+                <div class="section-title" style="margin-top: 15px;">API Response</div>
+                <div class="api-response" id="ts-api-response"></div>
+            </div>
+        </div>
+        
+        <!-- MSG91 Form -->
+        <div id="msg91-form" class="form-container">
+            <div class="common-fields">
+                <div class="section-title">Common Fields</div>
+                <div class="form-group">
+                    <label for="msg91-api-key">API Key:</label>
+                    <input type="text" id="msg91-api-key" placeholder="Enter your MSG91 API key">
+                </div>
+                <div class="form-group">
+                    <label for="msg91-message">Message:</label>
+                    <input type="text" id="msg91-message" placeholder="Enter your full message with OTP">
+                    <div class="example-text">Example: Your verification code is 654321. Valid for 10 minutes.</div>
+                </div>
+            </div>
+            
+            <div class="provider-specific-fields">
+                <div class="section-title">MSG91 Specific Fields</div>
+                <div class="form-group">
+                    <label for="msg91-sender-id">Sender ID:</label>
+                    <input type="text" id="msg91-sender-id" placeholder="Enter your sender ID">
+                </div>
+                <div class="form-group">
+                    <label for="msg91-route">Route:</label>
+                    <input type="text" id="msg91-route" placeholder="Enter route number" value="4">
+                    <div class="example-text">Example: 4 for transactional SMS</div>
+                </div>
+                <div class="form-group">
+                    <label for="msg91-phone">Phone Number:</label>
+                    <input type="text" id="msg91-phone" placeholder="Enter phone number with country code">
+                    <div class="example-text">Example: +917278507708 (include + and country code)</div>
+                </div>
+                <div class="form-group">
+                    <label for="msg91-dlt-te-id">DLT Template ID:</label>
+                    <input type="text" id="msg91-dlt-te-id" placeholder="Enter DLT template ID">
+                </div>
+                <div class="form-group">
+                    <label for="msg91-pe-id">DLT Entity ID (PE ID):</label>
+                    <input type="text" id="msg91-pe-id" placeholder="Enter DLT entity ID">
+                </div>
+            </div>
+            
+            <button type="submit" id="msg91-submit">Send Request</button>
+            <div class="loading" id="msg91-loading">Sending request...</div>
+            
+            <div class="result-container" id="msg91-result-container" style="display:none;">
+                <div class="section-title">API Request</div>
+                <div class="api-url" id="msg91-api-url"></div>
+                
+                <div class="section-title" style="margin-top: 15px;">API Response</div>
+                <div class="api-response" id="msg91-api-response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Provider switching
+        const providerBtns = document.querySelectorAll('.provider-btn');
+        const formContainers = document.querySelectorAll('.form-container');
+        
+        providerBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active button
+                providerBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Show appropriate form
+                const provider = btn.getAttribute('data-provider');
+                formContainers.forEach(form => {
+                    form.classList.remove('active');
+                    if (form.id === `${provider}-form`) {
+                        form.classList.add('active');
+                    }
+                });
+                
+                // Hide result containers when switching providers
+                document.getElementById('ts-result-container').style.display = 'none';
+                document.getElementById('msg91-result-container').style.display = 'none';
+            });
+        });
+        
+        // Validate Indian phone number
+        function validateIndianPhoneNumber(phone) {
+            const pattern = /^[6-9]\d{9}$/; // Indian phone numbers start with 6, 7, 8, or 9
+            return pattern.test(phone);
+        }
+        
+        // Input validation for Trustsignal phone number
+        document.getElementById('ts-phone').addEventListener('input', function() {
+            const phoneInput = this.value;
+            // Only allow digits
+            this.value = phoneInput.replace(/\D/g, '');
+            
+            // Clear error message when input changes
+            document.getElementById('ts-phone-error').style.display = 'none';
+        });
+        
+        // Make actual API request for Trustsignal
+        document.getElementById('ts-submit').addEventListener('click', async () => {
+            const apiKey = document.getElementById('ts-api-key').value || 'YOUR_API_KEY';
+            const senderId = document.getElementById('ts-sender-id').value || 'SENDER';
+            const templateId = document.getElementById('ts-template-id').value || 'TEMPLATE_ID';
+            const phone = document.getElementById('ts-phone').value || '';
+            const message = document.getElementById('ts-message').value || 'Your verification code is 654321. Valid for 10 minutes.';
+            
+            // Validate phone number
+            if (!validateIndianPhoneNumber(phone)) {
+                document.getElementById('ts-phone-error').style.display = 'block';
+                return;
+            }
+            
+            const url = `https://api.trustsignal.io/v1/sms`;
+            const phoneNumber = parseInt(phone, 10); // Convert to number
+            
+            const requestBody = {
+                to: [phoneNumber], // Phone number as integer, not string
+                sender_id: senderId,
+                route: 'otp',
+                message: message,
+                template_id: templateId
+            };
+            
+            // Display API request
+            document.getElementById('ts-api-url').innerText = `
+URL: ${url}
+
+Request Headers:
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer ${apiKey}"
+}
+
+Request Body:
+${JSON.stringify(requestBody, null, 2)}
+            `;
+            
+            // Show loading indicator
+            document.getElementById('ts-loading').style.display = 'block';
+            document.getElementById('ts-submit').disabled = true;
+            document.getElementById('ts-result-container').style.display = 'none';
+            
+            try {
+                // Make the actual API request
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const responseData = await response.json();
+                
+                // Display actual API response
+                document.getElementById('ts-api-response').innerText = JSON.stringify(responseData, null, 2);
+                document.getElementById('ts-result-container').style.display = 'block';
+            } catch (error) {
+                // Display error if request fails
+                document.getElementById('ts-api-response').innerText = `Error making request: ${error.message}`;
+                document.getElementById('ts-result-container').style.display = 'block';
+            } finally {
+                // Hide loading indicator
+                document.getElementById('ts-loading').style.display = 'none';
+                document.getElementById('ts-submit').disabled = false;
+            }
+        });
+        
+        // Make actual API request for MSG91 (using sendhttp.php endpoint)
+        document.getElementById('msg91-submit').addEventListener('click', async () => {
+            const apiKey = document.getElementById('msg91-api-key').value || 'YOUR_API_KEY';
+            const senderId = document.getElementById('msg91-sender-id').value || 'SENDER';
+            const route = document.getElementById('msg91-route').value || '4';
+            const phone = document.getElementById('msg91-phone').value || '+919876543210';
+            const message = document.getElementById('msg91-message').value || 'Your verification code is 654321. Valid for 10 minutes.';
+            const dltTeId = document.getElementById('msg91-dlt-te-id').value || 'DLT_TE_ID';
+            const peId = document.getElementById('msg91-pe-id').value || 'PE_ID';
+            
+            // Build the URL with all parameters as per the example
+            const baseUrl = 'https://api.msg91.com/api/sendhttp.php';
+            const url = new URL(baseUrl);
+            
+            // Add parameters to URL
+            url.searchParams.append('authkey', apiKey);
+            url.searchParams.append('sender', senderId);
+            url.searchParams.append('mobiles', phone);
+            url.searchParams.append('route', route);
+            url.searchParams.append('message', message);
+            url.searchParams.append('DLT_TE_ID', dltTeId);
+            url.searchParams.append('PE_ID', peId);
+            url.searchParams.append('response', 'json');
+            
+            // Display API request URL with parameters
+            document.getElementById('msg91-api-url').innerText = `
+URL: ${url}
+
+Request Method: GET
+
+Headers: None
+            `;
+            
+            // Show loading indicator
+            document.getElementById('msg91-loading').style.display = 'block';
+            document.getElementById('msg91-submit').disabled = true;
+            document.getElementById('msg91-result-container').style.display = 'none';
+            
+            try {
+                // Make the actual API request using GET
+                const response = await fetch(url, {
+                    method: 'GET'
+                });
+                
+                let responseData;
+                try {
+                    responseData = await response.json();
+                } catch (e) {
+                    // Handle text response
+                    responseData = await response.text();
+                }
+                
+                // Display actual API response
+                document.getElementById('msg91-api-response').innerText = typeof responseData === 'string' 
+                    ? responseData 
+                    : JSON.stringify(responseData, null, 2);
+                document.getElementById('msg91-result-container').style.display = 'block';
+            } catch (error) {
+                // Display error if request fails
+                document.getElementById('msg91-api-response').innerText = `Error making request: ${error.message}`;
+                document.getElementById('msg91-result-container').style.display = 'block';
+            } finally {
+                // Hide loading indicator
+                document.getElementById('msg91-loading').style.display = 'none';
+                document.getElementById('msg91-submit').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
